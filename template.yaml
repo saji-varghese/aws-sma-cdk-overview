@@ -1,0 +1,53 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: Hello World with CloudFormation
+Resources:
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName:
+        Fn::Sub: lambda-role
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+            - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+              - lambda.amazonaws.com
+        Version: 2012-10-17
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AWSLambdaExecute
+        - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
+        - arn:aws:iam::aws:policy/TranslateReadOnly
+      Path: /
+  LambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: Translator
+      Description: Sample CF lambda
+      MemorySize: 128
+      Timeout: 10
+      Role:
+        Fn::GetAtt:
+          - LambdaRole
+          - Arn
+      Runtime: python3.7
+      Handler: index.lambda_handler
+      Code:
+        ZipFile: |
+          import boto3
+          import json
+          translate_client = boto3.client('translate')
+          def lambda_handler(event, context):
+              print ("event : %s" % json.dumps(event['body']))
+              textToTranslate =  event['text']
+              translateTo = event['translateTo']
+              translateResponse = translate_client.translate_text(
+                  Text=textToTranslate,
+                  SourceLanguageCode='auto',
+                  TargetLanguageCode=translateTo
+              )
+              return translateResponse['TranslatedText']
+
+
