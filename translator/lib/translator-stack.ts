@@ -1,9 +1,7 @@
 
 import * as cdk from '@aws-cdk/core';
-import { Construct } from "constructs";
 import * as apigateway from "@aws-cdk/aws-apigateway";
 import * as lambda from "@aws-cdk/aws-lambda";
-import * as iam from '@aws-cdk/aws-iam';
 import { Policy, PolicyStatement } from '@aws-cdk/aws-iam';
 
 export class TranslatorStack extends cdk.Stack {
